@@ -10,4 +10,4 @@ Once installed, the extension icon will automatically enable when you visit any 
 
 Click on it to show the three most popular tags the author of that blog used in their last _n_ posts (not resteems), or alternatively just the resteems
 
-The icon won't show, and is inactive, when you are on any other webpage
+The icon won't show, when you are on any other webpage
