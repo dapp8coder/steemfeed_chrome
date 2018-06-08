@@ -45,7 +45,7 @@ function getTags(strUser, arrPosts) {
     
                 for (var strTag of arrPostTags) {
                     count++;
-                    if (count < 3) {        //only looking at first two tags
+                    if (count < 4) {        //only looking at first three tags
                         addTag(strTag);
                     }
                     else {
@@ -56,45 +56,56 @@ function getTags(strUser, arrPosts) {
             } //If resteem (i.e. author != strUser), don't worry about tags
         }
 
-    //now sort the tag objects in mArrTagObjects via their count value.
+    //sort the tag objects in mArrTagObjects via their count value.
     mArrTagObjects.sort(function(a,b){return b.count - a.count});
 
-    //truncate array to top three tags
-    if (mArrTagObjects.length > 2) {
-        mArrTagObjects.length = 3;
+    for (var obj of mArrTagObjects) {
+        console.log(obj.name + ": " + obj.count);
+    }
+
+    //truncate array to top four tags
+    if (mArrTagObjects.length > 3) {
+        mArrTagObjects.length = 4;
     }
 
     //stop loader
     document.getElementById("loader").style.display = "none";
     
-    if (mArrTagObjects.length == 3) {
+    if (mArrTagObjects.length == 4) {
         var btn1 = document.getElementById("btnTag1");
         var btn2 = document.getElementById("btnTag2");
         var btn3 = document.getElementById("btnTag3");
+        var btn4 = document.getElementById("btnTag4");
         var btnResteems = document.getElementById("btnResteems");
+        var btnHideResteems = document.getElementById("btnHideResteems");
         
         btn1.value = capitalizeFirstLetter(mArrTagObjects[0].name);
         btn2.value = capitalizeFirstLetter(mArrTagObjects[1].name);
         btn3.value = capitalizeFirstLetter(mArrTagObjects[2].name);
-        btnResteems.value = "Resteems";
+        btn4.value = capitalizeFirstLetter(mArrTagObjects[3].name);
 
         btn1.setAttribute("data-tag", mArrTagObjects[0].name);
         btn2.setAttribute("data-tag", mArrTagObjects[1].name);
         btn3.setAttribute("data-tag", mArrTagObjects[2].name);
+        btn4.setAttribute("data-tag", mArrTagObjects[3].name);
         btnResteems.setAttribute("data-tag", "resteems");
 
         btn1.addEventListener("click", displayPosts);
         btn2.addEventListener("click", displayPosts);
         btn3.addEventListener("click", displayPosts);
+        btn4.addEventListener("click", displayPosts);
         btnResteems.addEventListener("click", displayPosts);
+        btnHideResteems.addEventListener("click", messageBackground);
 
         btn1.style.display = "inline-block";
         btn2.style.display = "inline-block";
         btn3.style.display = "inline-block";
-        btnResteems.style.display = "inline";
+        btn4.style.display = "inline-block";
+        btnResteems.style.display = "inline-block";
+        btnHideResteems.style.display = "inline-block";
     }
     else {
-        //not enough tags to use ***Nb, can add code to handle 2 tags here.
+        //not enough tags to use ***Nb, can add code to handle 3 tags here.
         document.getElementById("popup").innerHTML = "Not enough tags";
     }
     
@@ -110,12 +121,13 @@ function addTag(str) {
     else {
         for (var strTag of mArrTags) {
             if (strTag == str) {
-                //tag already in tag array, so increment the count in the relevant tag object (held in mArrTagObjects)
+                //tag already in tag array, so increment the count in the relevant tag object (held in mArrTagObjects), then break out of loop
                 for (var objTag of mArrTagObjects) {
                     if (objTag.name == str) {
                         objTag.count += 1;
                     }
                 }
+
                 blnNew = false;
                 break;
             }
@@ -131,7 +143,6 @@ function addTag(str) {
 function displayPosts() {
     var arrPostTags = [];
     var strTag = this.getAttribute("data-tag");
-    console.log(strTag);
 
     if (strTag == "resteems") {
         for (var objPost of mArrPosts) {
@@ -170,7 +181,6 @@ function createSummary(post) {
     else {
         img = "/images/no_image.png";
     }
-    
     var ttl = post.root_title;
     var authr = post.author;
     var link = post.url;
@@ -181,4 +191,9 @@ function createSummary(post) {
 
 function capitalizeFirstLetter(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+//send message to background script to inject content script to hide resteems on steemit.com
+function messageBackground() {
+    chrome.runtime.sendMessage(true);
 }
